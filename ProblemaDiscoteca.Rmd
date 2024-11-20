@@ -224,27 +224,26 @@ library(qgraph)
 qgraph::qgraph(salida$relacion.dominante)
 
 ```
-  !!!!! cambiarrrr
-  
-  Reducimos el alpha para sacar mejores conclusiones.
+En principio, no notamos cuál va a ser la mejor solución por lo que vamos a reducir el alpha para sacar mejores conclusiones: 
   
 ```{r}
 salida_reducida <- multicriterio.metodoELECTRE_I(datos,
                                       pesos.criterios = pesos.criterios,
                                       nivel.concordancia.minimo.alpha = 0.6,
-                                     no.se.compensan = c(Inf,Inf,Inf,Inf,Inf, Inf),
-                                      que.alternativas = c(1,3,4,5))
+                                     no.se.compensan =c(100, 50, 1000, 300, 200) ,
+                                      que.alternativas = T)
 salida_reducida
 ```
-
+Aquí podemos observar que tenemos ahora solo 4 ubicaciones, vamos a seguir reduciendo para sacar la mejor conclusión:
 ```{r}
 salida_reducida2 <- multicriterio.metodoELECTRE_I(datos,
                                       pesos.criterios = pesos.criterios,
                                       nivel.concordancia.minimo.alpha = 0.52,
-                                     no.se.compensan = c(Inf,Inf,Inf,Inf,Inf, Inf),
-                                      que.alternativas = c(4,5))
-salsalida_reducida2
+                                     no.se.compensan = c(100, 50, 1000, 300, 200),
+                                      que.alternativas = c(1,2,3,5))
+salida_reducida2
 ```
+Podemos concluir que la mejor solución es la misma que en los otros métodos, la ubicación E. 
 
 # METODO AHP   
 En el método AHP tenemos que comparar primero las características de los jugadores 2 a 2.   
@@ -252,29 +251,6 @@ Diremos entonces que:
 
 #### CRITERIOS 2 A 2   
 ```{r}
-#ACCESIBILIDAD
-accesibilidad_df <- data.frame(
-  alternativas,
-  c(1, 2, 1/3, 5, 1/2),
-  c(1/2, 1, 1/7, 3, 1/6),
-  c(3, 7, 1, 8, 2),
-  c(1/5, 1/3, 1/8, 1, 1/4),
-  c(2, 6, 1/2, 4, 1)
-)
-names(accesibilidad_df) <- c("Accesibilidad", alternativas)
-pander(accesibilidad_df)
-
-#PROXIMIDAD
-proximidad_df <- data.frame(
-  alternativas,
-  c(1, 3, 1/5, 2, 1/3),
-  c(1/3, 1, 1/7, 1/3, 1/5),
-  c(5, 7, 1, 6, 3),
-  c(1/2, 3, 1/6, 1, 2),
-  c(3, 5, 1/3, 1/2, 1)
-)
-names(proximidad_df) <- c("Proximidad", alternativas)
-pander(proximidad_df)
 
 ```
 
