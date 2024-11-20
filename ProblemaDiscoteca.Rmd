@@ -1,0 +1,280 @@
+---
+title: "Teoría de la Desición-Trabajo 2"
+author: "Maria Rosario Ruiz Ávila"
+date: "11/20/2024"
+output: html_document
+---
+### Problema: Selección de Ubicsación para una Nueva Discoteca
+Un empresario desea abrir una nueva discoteca en una ciudad. Para seleccionar la mejor ubicación entre cinco opciones, se han definido los siguientes criterios con sus respectivos pesos:
+
+Proximidad a zonas residenciales jóvenes (3 puntos): Es importante que la discoteca esté cerca de zonas habitadas por personas jóvenes, quienes son el público objetivo principal.
+Accesibilidad (2,5 puntos): La ubicación debe contar con buenas conexiones de transporte público, carreteras y aparcamientos cercanos.
+Costo del alquiler mensual (2 puntos): Aunque un lugar estratégico es importante, el costo del alquiler no debe superar el presupuesto.
+Competencia cercana (2 puntos): Menos competencia en la zona incrementa la probabilidad de éxito.
+Tamaño del local (2 puntos): La discoteca necesita espacio suficiente para acomodar a los clientes y ofrecer áreas de baile, mesas y barras.
+
+Opciones:
+
+-Ubicación A:
+Proximidad a zonas residenciales jóvenes: 80 puntos
+Accesibilidad: 70 puntos
+Costo del alquiler mensual: 6.000 €/mes
+Competencia cercana: 60 puntos
+Tamaño del local: 300 m²
+
+-Ubicación B:
+Proximidad a zonas residenciales jóvenes: 70 puntos
+Accesibilidad: 85 puntos
+Costo del alquiler mensual: 5.500 €/mes
+Competencia cercana: 80 puntos
+Tamaño del local: 250 m²
+
+-Ubicación C:
+Proximidad a zonas residenciales jóvenes: 90 puntos
+Accesibilidad: 65 puntos
+Costo del alquiler mensual: 7.000 €/mes
+Competencia cercana: 50 puntos
+Tamaño del local: 320 m²
+
+-Ubicación D:
+Proximidad a zonas residenciales jóvenes: 75 puntos
+Accesibilidad: 80 puntos
+Costo del alquiler mensual: 6.500 €/mes
+Competencia cercana: 70 puntos
+Tamaño del local: 270 m²
+
+-Ubicación E:
+Proximidad a zonas residenciales jóvenes: 65 puntos
+Accesibilidad: 90 puntos
+Costo del alquiler mensual: 4.500 €/mes
+Competencia cercana: 85 puntos
+Tamaño del local: 230 m²
+
+```{r}
+library(htmltools)
+library(shape)
+library(pander)
+source("teoriadecision_funciones_multicriterio.R")
+source("teoriadecision_funciones_multicriterio_diagram.R")
+source("teoriadecision_funciones_multicriterio_utiles.R")
+source("teoriadecision_funciones_incertidumbre.R")
+```
+
+```{r}
+
+# Definición de los criterios
+criterios <- c(
+  "Proximidad a zonas residenciales jóvenes",
+  "Accesibilidad",
+  "Costo del alquiler mensual",
+  "Competencia cercana",
+  "Tamaño del local"
+)
+
+# Si el objetivo es maximizar o minimizar
+min_max <- c("Max", "Max", "Min", "Max", "Max")
+
+# Alternativas
+alternativas <- c("Ubicación A", "Ubicación B", "Ubicación C", "Ubicación D", "Ubicación E")
+
+# Puntuaciones de cada alternativa
+Ubicacion_A <- c(80, 70, 6000, 60, 300)
+Ubicacion_B <- c(70, 85, 5500, 80, 250)
+Ubicacion_C <- c(90, 65, 7000, 50, 320)
+Ubicacion_D <- c(75, 80, 6500, 70, 270)
+Ubicacion_E <- c(65, 90, 4500, 85, 230)
+
+# Pesos de los criterios
+p <- c(3, 2.5, 2, 2, 2)
+
+# Idealidad de los valores
+q <- c(1, 1, 0, 1, 1) # Max=1, Min=0
+
+# Referencia de los criterios
+s <- c(100, 100, 4000, 100, 400)
+
+# Crear la tabla
+tabla <- data.frame(
+  "Criterios" = criterios,
+  "Min/Max" = min_max,
+  Ubicacion_A, Ubicacion_B, Ubicacion_C, Ubicacion_D, Ubicacion_E, 
+  "Pesos" = p, "Idealidad" = q, "Referencia" = s
+)
+
+# Mostrar la tabla con pander
+pander(tabla)
+
+```
+
+
+Se crea la matriz de desición:
+```{r}
+datos <- multicriterio.crea.matrizdecision(
+  c(80, 70, -6000, 60, 300,
+    70, 85, -5500, 80, 250,
+    90, 65, -7000, 50, 320,
+    75, 80, -6500, 70, 270,
+    65, 90, -4500, 85, 230),
+  numalternativas = 5, 
+  numcriterios = 5,
+  v.nombresalt = alternativas, 
+  v.nombrescri = criterios
+)
+
+# Visualización de la matriz de decisión
+datos
+
+```
+
+#MÉTODO PROMETHEE I
+
+```{r}
+# Cargar las bibliotecas necesarias
+library(qgraph)
+
+# Crear la tabla de preferencias ajustada para la discoteca
+tabla_pref <- matrix(c(
+  1, 1, 3, 100,    # Proximidad a zonas residenciales jóvenes (Tipo 1: Usual)
+  5, 1, 2.5, 100,  # Accesibilidad (Tipo 5: Lineal)
+  5, 0, 2, 4000,   # Costo del alquiler mensual (Tipo 5: Lineal)
+  1, 1, 2, 100,    # Competencia cercana (Tipo 1: Usual)
+  5, 1, 2, 400     # Tamaño del local (Tipo 5: Lineal)
+), ncol = 4, byrow = TRUE)
+
+# Calcular los pesos normalizados para PROMETHEE
+pesos <- tabla_pref[, 3] / sum(tabla_pref[, 3])
+
+# Aplicar el método PROMETHEE I
+tab_Pthee_i <- multicriterio.metodo.promethee_i(
+  datos,
+  pesos.criterios = pesos,
+  tab.fpref = tabla_pref
+)
+
+# Mostrar los resultados
+tab_Pthee_i
+
+# Graficar las relaciones de superación usando qgraph
+qgraph::qgraph(tab_Pthee_i$tablarelacionsupera)
+
+```
+La mejor alternativa es la opción E ya que esa alternativa supera a las demás. 
+
+#MÉTODO PROMETHEE II
+```{r}
+tab_Pthee_ii <- multicriterio.metodo.promethee_ii(datos, pesos.criterios = tabla_pref[,3]/sum(tabla_pref[,3]),
+tab.fpref = tabla_pref)
+tab_Pthee_ii
+qgraph::qgraph(tab_Pthee_ii$tablarelacionsupera)
+```
+En este caso, la alternativa E sigue siendo la mejor ubicación para la discoteca, teniendo el mayor flujo neto y viendo que en la tabla supera la ubicación E tiene 1 en todas las columnas comparativas con el resto de ubicaciones. 
+
+Ordenar las alternativas del Método Promethee II para corroboar que la mejor alternativa es la E:
+```{r}
+order(tab_Pthee_ii$vflujos.netos,decreasing = T)
+
+```
+Podemos ver que es la quinta ubicación la mejor. 
+
+
+# Metodo I medias 
+```{r}
+
+tab_Ptheei_medias <- multicriterio.metodo.promethee_i_med(datos,
+ pesos.criterios = tabla_pref[,3]/sum(tabla_pref[,3]),tab.fpref = tabla_pref)
+tab_Ptheei_medias
+qgraph::qgraph(tab_Ptheei_medias$tablarelacionsupera)
+
+pesos.criterios = tabla_pref[,3]/sum(tabla_pref[,3])
+```
+También la mejor alternativa es la E, vemos que en la tabla supera la fila E con respecto a todas las otras ubicaciones es 1 por lo qu esupera a todas. 
+
+# Metodo II medias 
+```{r}
+
+tab_Ptheeii_medias <- multicriterio.metodo.promethee_ii_med(datos,pesos.criterios = tabla_pref[,3]/sum(tabla_pref[,3]),tab.fpref = tabla_pref)
+tab_Ptheeii_medias
+qgraph::qgraph(tab_Ptheeii_medias$tablarelacionsupera)
+```
+
+```{r }
+order(tab_Ptheeii_medias$vflujos.netos,decreasing = T)
+
+```
+La quinta alternativa sigue siendo la mejor también en este método.
+
+# METODO ELECTRE:  
+Proximidad a zonas residenciales jóvenes (100): Se permite que algunas diferencias no sean críticas. Si las alternativas son bastante similares en este aspecto, una pequeña diferencia no será un factor decisivo.
+Accesibilidad (50): Aunque es un factor clave, es posible tolerar pequeñas diferencias en accesibilidad, especialmente si otras ubicaciones son igualmente accesibles.
+Costo del alquiler mensual (1000): Las diferencias en los costos deben ser tomadas muy en cuenta, por lo que un umbral bajo (1000) asegura que las diferencias significativas en los costos sean relevantes para la decisión.
+Competencia cercana (300): Aunque la competencia es relevante, puede haber más flexibilidad en este criterio. Una pequeña diferencia no debería ser determinante si otros factores compensan la diferencia.
+Tamaño del local (200): El tamaño del local es importante, pero en este contexto puede haber cierto margen de flexibilidad para adaptarse a los diferentes tamaños de los locales disponibles.
+```{r}
+salida <- multicriterio.metodoELECTRE_I(datos,
+                                      pesos.criterios = pesos,
+                                      nivel.concordancia.minimo.alpha = 0.7,
+                                      no.se.compensan =c(100, 50, 1000, 300, 200),
+                                      que.alternativas = T)
+salida
+```
+
+
+```{r}
+library(qgraph)
+qgraph::qgraph(salida$relacion.dominante)
+
+```
+  !!!!! cambiarrrr
+  
+  Reducimos el alpha para sacar mejores conclusiones.
+  
+```{r}
+salida_reducida <- multicriterio.metodoELECTRE_I(datos,
+                                      pesos.criterios = pesos.criterios,
+                                      nivel.concordancia.minimo.alpha = 0.6,
+                                     no.se.compensan = c(Inf,Inf,Inf,Inf,Inf, Inf),
+                                      que.alternativas = c(1,3,4,5))
+salida_reducida
+```
+
+```{r}
+salida_reducida2 <- multicriterio.metodoELECTRE_I(datos,
+                                      pesos.criterios = pesos.criterios,
+                                      nivel.concordancia.minimo.alpha = 0.52,
+                                     no.se.compensan = c(Inf,Inf,Inf,Inf,Inf, Inf),
+                                      que.alternativas = c(4,5))
+salsalida_reducida2
+```
+
+# METODO AHP   
+En el método AHP tenemos que comparar primero las características de los jugadores 2 a 2.   
+Diremos entonces que:      
+
+#### CRITERIOS 2 A 2   
+```{r}
+#ACCESIBILIDAD
+accesibilidad_df <- data.frame(
+  alternativas,
+  c(1, 2, 1/3, 5, 1/2),
+  c(1/2, 1, 1/7, 3, 1/6),
+  c(3, 7, 1, 8, 2),
+  c(1/5, 1/3, 1/8, 1, 1/4),
+  c(2, 6, 1/2, 4, 1)
+)
+names(accesibilidad_df) <- c("Accesibilidad", alternativas)
+pander(accesibilidad_df)
+
+#PROXIMIDAD
+proximidad_df <- data.frame(
+  alternativas,
+  c(1, 3, 1/5, 2, 1/3),
+  c(1/3, 1, 1/7, 1/3, 1/5),
+  c(5, 7, 1, 6, 3),
+  c(1/2, 3, 1/6, 1, 2),
+  c(3, 5, 1/3, 1/2, 1)
+)
+names(proximidad_df) <- c("Proximidad", alternativas)
+pander(proximidad_df)
+
+```
+
