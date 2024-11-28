@@ -263,13 +263,12 @@ kable(accesibilidad, caption = "Matriz de Comparación: Accesibilidad")
 ```
 
 ```{r}
-# Puntuaciones de costo (invertidas) ya que se minimiza
 costo = matrix(c(
-  1,    0.92, 0.86, 0.92, 1.33,
-  1.09, 1,    0.94, 1,    1.45,
-  1.16, 1.07, 1,    1.07, 1.54,
-  1.09, 1,    0.94, 1,    1.45,
-  0.75, 0.69, 0.65, 0.69, 1
+  1,    1.09, 1.16, 1.09, 0.75,
+  0.92, 1,    1.07, 1,    0.69,
+  0.86, 0.94, 1,    0.94, 0.65,
+  0.92, 1,    1.07, 1,    0.69,
+  1.33, 1.45, 1.54, 1.45, 1
 ), nrow = 5, byrow = TRUE)
 
 rownames(costo) = c("A", "B", "C", "D", "E")
@@ -316,7 +315,7 @@ criterios2 = matrix(c(
   0.83, 1,   -1.2, 1.1, 1.1,  
   0.67, 0.83, -1,   0.9, 0.9,  
   0.77, 0.91, -1.11, 1,   1,  
-  0.77, 0.91, -1.11, 1,   1   
+  0.77, 0.91,1.11, 1,   1   
 ), nrow = 5, byrow = TRUE)
 
 rownames(criterios2) = c("Proximidad", "Accesibilidad", "Costo", "Competencia", "Tamaño")
@@ -364,39 +363,48 @@ dimnames(tabla2)[[2]] <- alternativas
 dimnames(tabla2)[[3]] <- criterios
 multicriterio.metodoahp.diagrama(tabla1, tabla2)
 ```
-
+Podemos ver que como en el resto de los métodos, la mejor ubicación es la E. 
 2. **Calcular las ponderaciones asociadas a cada criterio manejado.**
 
 ```{r}
 pesos_criterios = multicriterio.metodoAHP.variante3.basico(criterios2)
 pesos_criterios
 ```
-
+Esto implica que "Proximidad" es el criterio con mayor peso en la toma de decisiones, mientras que "Tamaño" es el menos relevante según las comparaciones.
 3. **Calcular las ponderaciones de las cinco alternativas en función de cada criterio.**
 ```{r}
 pproximidad=  multicriterio.metodoAHP.variante3.basico(proximidad2)
 pproximidad
 ```
-
+Ubicación C es la más preferida en cuanto a proximidad a zonas residenciales jóvenes, con la prioridad relativa más alta (0.2232) Esto indica que sería una opción estratégica si la proximidad es el criterio principal para la toma de decisiones.
+Ubicación E tiene la menor prioridad relativa(0.1713), lo que sugiere que está menos alineada con el criterio de proximidad.
+Por tanto, Ubicación C debe ser considerada como la mejor alternativa según el análisis de proximidad.
 ```{r}
 paccesibilidad=  multicriterio.metodoAHP.variante3.basico(accesibilidad2)
 paccesibilidad
 ```
-
+Ubicación E es la opción más preferida en términos de accesibilidad, con la prioridad relativa más alta (
+0.2356
+0.2356). Esto indica que proporciona las mejores condiciones de accesibilidad comparada con otras ubicaciones.
+Ubicación C tiene la prioridad relativa más baja (
+0.1774
+0.1774), lo que la hace menos favorable en accesibilidad.
 ```{r}
 pcosto=  multicriterio.metodoAHP.variante3.basico(costo2)
 pcosto
 ```
-
+Ubicación E es la opción más favorable para el costo de alquiler, con la prioridad más alta (0.2424). Esto implica que ofrece el mejor equilibrio entre el costo y su valor comparado con las demás ubicaciones.
+Ubicación C es la menos favorable (0.1641), lo que sugiere que, en términos de costo, podría no ser una buena elección relativa.
 ```{r}
 pcompetencia=  multicriterio.metodoAHP.variante3.basico(competencia2)
 pcompetencia
 ```
+Ubicación E destaca como la opción más competitiva (0.2486), lo que indica que podría ofrecer una ventaja significativa frente a las demás ubicaciones en términos de este criterio.Ubicación A y Ubicación D son alternativas fuertes pero ligeramente inferiores en competitividad relativa.Ubicación C obtiene el menor puntaje (0.1631), lo que sugiere que podría enfrentar mayores desafíos o menos oportunidades desde el punto de vista competitivo.
 ```{r}
 ptamaño=  multicriterio.metodoAHP.variante3.basico(tamano2)
 ptamaño
 ```
-
+Ubicación C es la más adecuada en términos de tamaño, con una valoración superior(0.2213), lo que indica que podría ofrecer una ventaja significativa por sus dimensiones o espacio disponible.Ubicación D y Ubicación B están muy cerca en competitividad, también representando buenas opciones pero algo inferiores a Ubicación C.Ubicación E presenta la puntuación más baja (0.1669), lo que sugiere que tiene las dimensiones menos competitivas entre las opciones evaluadas.
 4. **Verificar la consistencia de las preferencias**
 ```{r}
 multicriterio.metodoAHP.coef.inconsistencia(criterios2)
@@ -435,7 +443,13 @@ multicriterio.metodoAHP.coef.inconsistencia(tamano2)
                                                           pcompetencia$valoraciones.ahp,
                                                           ptamaño$valoraciones.ahp))
 ```
+Ubicación E sobresale como la mejor opción global con un puntaje de 0.2155, destacándose especialmente en los criterios de costo, accesibilidad, y competencia. Esto indica que Ubicación E ofrece un equilibrio fuerte entre estos factores.
+Ubicación A se posiciona en el segundo lugar, gracias a un buen desempeño en costo y proximidad, lo que la hace competitiva.
+Ubicación D y Ubicación B tienen puntuaciones similares, sugiriendo que ambas podrían ser alternativas viables si las primeras opciones no están disponibles o si algún criterio específico (como tamaño o costo) tiene más relevancia para el objetivo.
+Ubicación C es la menos favorable, con un puntaje global de 0.1886. Esto sugiere que tiene desventajas relativas frente a las otras ubicaciones, especialmente en competencia y costo.
 
+## Conclusion General 
+Ubicación E es la mejor opción global al integrar todos los criterios, ofreciendo el mejor balance entre costo, accesibilidad, y competencia. Ubicación A es una buena alternativa, especialmente si se da prioridad a la proximidad o al costo. Por otro lado, Ubicación C es menos competitiva en este análisis, por lo que sería la última opción.
  
  
  
