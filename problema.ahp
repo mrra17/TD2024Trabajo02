@@ -1,0 +1,92 @@
+Version: 2.0
+Alternatives: &alternatives
+    A:
+    B:
+    C:
+    D:
+    E:
+Goal:
+  name: Selección de Ubicación para una Nueva Discoteca
+  preferences:
+    pairwise:
+      - [Proximidad, Accesibilidad, 3]
+      - [Proximidad, Costo, 7]
+      - [Proximidad, Competencia, 3]
+      - [Proximidad, Tamaño, 3]
+      - [Accesibilidad, Costo, 2.5]
+      - [Accesibilidad, Competencia, 2]
+      - [Accesibilidad, Tamaño, 2]
+      - [Costo, Competencia, 1]
+      - [Costo, Tamaño, 1]
+      - [Competencia, Tamaño, 1]
+  children:
+      Proximidad:
+        preferences:
+          pairwise:
+            - [A, B, 80/70]
+            - [A, C, 80/90]
+            - [A, D, 80/75]
+            - [A, E, 80/65]
+            - [B, C, 70/90]
+            - [B, D, 70/75]
+            - [B, E, 70/65]
+            - [C, D, 90/75]
+            - [C, E, 90/65]
+            - [D, E, 75/65]
+        children: *alternatives
+      Accesibilidad:
+        preferences:
+          pairwise:
+            - [A, B, 70/85]
+            - [A, C, 70/65]
+            - [A, D, 70/80]
+            - [A, E, 70/90]
+            - [B, C, 85/65]
+            - [B, D, 85/80]
+            - [B, E, 85/90]
+            - [C, D, 65/80]
+            - [C, E, 65/90]
+            - [D, E, 80/90]
+        children: *alternatives
+      Costo:
+        preferences:
+          pairwise:
+            - [A, B, 5500/6000]
+            - [A, C, 7000/6000]
+            - [A, D, 6500/6000]
+            - [A, E, 4500/6000]
+            - [B, C, 7000/5500]
+            - [B, D, 6500/5500]
+            - [B, E, 4500/5500]
+            - [C, D, 6500/7000]
+            - [C, E, 4500/7000]
+            - [D, E, 4500/6500]
+        children: *alternatives
+      Competencia:
+        preferences:
+          pairwise:
+            - [A, B, 60/80]
+            - [A, C, 60/50]
+            - [A, D, 60/70]
+            - [A, E, 60/85]
+            - [B, C, 80/50]
+            - [B, D, 80/70]
+            - [B, E, 80/85]
+            - [C, D, 50/70]
+            - [C, E, 50/85]
+            - [D, E, 70/85]
+        children: *alternatives
+      Tamaño:
+        preferences:
+          pairwise:
+            - [A, B, 300/250]
+            - [A, C, 300/320]
+            - [A, D, 300/270]
+            - [A, E, 300/230]
+            - [B, C, 250/320]
+            - [B, D, 250/270]
+            - [B, E, 250/230]
+            - [C, D, 320/270]
+            - [C, E, 320/230]
+            - [D, E, 270/230]
+        children: *alternatives
