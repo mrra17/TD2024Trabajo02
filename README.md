@@ -15,7 +15,7 @@ El resultado es una solución clara y justificada que ayuda a tomar decisiones e
 ## 🛠️ **Contenido del repositorio**
 
 - 📄 **`ProblemaDiscoteca.Rmd`**: Documento en R Markdown que contiene el análisis completo, desde los datos hasta las conclusiones.
-- 📑 **`ProblemaDiscoteca.pdf`**: Informe final generado en PDF, con los resultados y visualizaciones.
+- 📑 **`ProblemaDiscoteca.html`**: Informe final generado en PDF, con los resultados y visualizaciones.
 - 📊 **`.R`**: Archivos de datos y funciones usados para el análisis.
 - 📜 **`README.md`**: Este archivo, que explica el propósito y uso del proyecto.
 
