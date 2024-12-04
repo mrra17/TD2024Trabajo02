@@ -3,8 +3,8 @@ title: "Teoría de la Desición-Trabajo 2"
 author: "Maria Rosario Ruiz Ávila"
 date: "11/20/2024"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 # Problema: Selección de Ubicación para una Nueva Discoteca
 
@@ -53,7 +53,7 @@ criterios = c(
 )
 
 # Si el objetivo es maximizar o minimizar
-min_max = c("Max", "Max", "Min", "Max", "Max")
+min_max = c("Max", "Max", "Min", "Min", "Max")
 ```
 
 Definimos las alternativas:
@@ -74,7 +74,7 @@ Definimos pesos, idealidad y referencia de los criterios:
 p = c(3, 2.5, 2, 2, 2)
 
 # Idealidad de los valores
-q = c(1, 1, 0, 1, 1) # Max=1, Min=0
+q = c(1, 1, 0, 0, 1) # Max=1, Min=0
 
 # Referencia de los criterios
 s = c(100, 100, 4000, 100, 400)
@@ -95,19 +95,17 @@ pander(tabla)
 
 Creamos la matriz de desición:
 ```{r}
-desicion = multicriterio.crea.matrizdecision(
-  c(80, 70, -6000, 60, 300,
-    70, 85, -5500, 80, 250,
-    90, 65, -7000, 50, 320,
-    75, 80, -6500, 70, 270,
-    65, 90, -4500, 85, 230),
-  numalternativas = 5, 
-  numcriterios = 5,
-  v.nombresalt = alternativas, 
-  v.nombrescri = criterios
+desicion=multicriterio.crea.matrizdecision(c(80, 70, -6000, -60, 300,
+                                             70, 85, -5500, -80, 250,
+                                             90, 65, -7000, -50, 320,
+                                             75, 80, -6500, -70, 270,
+                                             65, 90, -4500, -85, 230),
+                                           numalternativas = 5, 
+                                           numcriterios = 5,
+                                           v.nombresalt = alternativas,
+                                           v.nombrescri = criterios
+                                           
 )
-desicion
-
 ```
 
 #MÉTODO PROMETHEE I
@@ -121,7 +119,7 @@ preferencias = matrix(c(
   1, 1, 3, 100,    # Proximidad a zonas residenciales jóvenes (Tipo 1: Usual)
   5, 1, 2.5, 100,  # Accesibilidad (Tipo 5: Lineal)
   5, 0, 2, 4000,   # Costo del alquiler mensual (Tipo 5: Lineal)
-  1, 1, 2, 100,    # Competencia cercana (Tipo 1: Usual)
+  1, 0, 2, 100,    # Competencia cercana (Tipo 1: Usual)
   5, 1, 2, 400     # Tamaño del local (Tipo 5: Lineal)
 ), ncol = 4, byrow = TRUE)
 
@@ -139,7 +137,8 @@ promethee_i
 qgraph::qgraph(promethee_i$tablarelacionsupera)
 
 ```
-La mejor alternativa es la opción E ya que esa alternativa supera a las demás. 
+
+La mejor alternativa es la opción C ya que esa alternativa supera a las demás. 
 
 #MÉTODO PROMETHEE II
 ```{r}
@@ -148,14 +147,15 @@ tab.fpref = preferencias)
 promethee_ii
 qgraph::qgraph(promethee_ii$tablarelacionsupera)
 ```
-En este caso, la alternativa E sigue siendo la mejor ubicación para la discoteca, teniendo el mayor flujo neto y viendo que en la tabla supera la ubicación E tiene 1 en todas las columnas comparativas con el resto de ubicaciones. 
+
+En este caso, la alternativa C sigue siendo la mejor ubicación para la discoteca, teniendo el mayor flujo neto y viendo que en la tabla supera la ubicación C tiene 1 en todas las columnas comparativas con el resto de ubicaciones. 
 
 Ordenar las alternativas del Método Promethee II para corroboar que la mejor alternativa es la E:
 ```{r}
 order(promethee_ii$vflujos.netos,decreasing = T)
 
 ```
-Podemos ver que es la quinta ubicación la mejor. 
+Podemos ver que es la tercera ubicación la mejor. 
 
 
 # Metodo I medias 
@@ -168,7 +168,7 @@ qgraph::qgraph(medias_i$tablarelacionsupera)
 
 pesos.criterios =pesos
 ```
-También la mejor alternativa es la E, vemos que en la tabla supera la fila E con respecto a todas las otras ubicaciones es 1 por lo que supera a todas. 
+También la mejor alternativa es la C, vemos que en la tabla supera la fila C con respecto a todas las otras ubicaciones es 1 por lo que supera a todas. 
 
 # Metodo II medias 
 ```{r}
@@ -183,19 +183,15 @@ qgraph::qgraph(medias_ii$tablarelacionsupera)
 order(medias_ii$vflujos.netos,decreasing = T)
 
 ```
-La quinta alternativa sigue siendo la mejor también en este método.
+La tercera alternativa sigue siendo la mejor también en este método.
 
 # METODO ELECTRE:  
-Proximidad a zonas residenciales jóvenes (100): Se permite que algunas diferencias no sean críticas. Si las alternativas son bastante similares en este aspecto, una pequeña diferencia no será un factor decisivo.
-Accesibilidad (50): Aunque es un factor clave, es posible tolerar pequeñas diferencias en accesibilidad, especialmente si otras ubicaciones son igualmente accesibles.
-Costo del alquiler mensual (1000): Las diferencias en los costos deben ser tomadas muy en cuenta, por lo que un umbral bajo (1000) asegura que las diferencias significativas en los costos sean relevantes para la decisión.
-Competencia cercana (300): Aunque la competencia es relevante, puede haber más flexibilidad en este criterio. Una pequeña diferencia no debería ser determinante si otros factores compensan la diferencia.
-Tamaño del local (200): El tamaño del local es importante, pero en este contexto puede haber cierto margen de flexibilidad para adaptarse a los diferentes tamaños de los locales disponibles.
+
 ```{r}
 electre_1= multicriterio.metodoELECTRE_I(desicion,
                                       pesos.criterios = pesos,
                                       nivel.concordancia.minimo.alpha = 0.7,
-                                      no.se.compensan =c(100, 50, 1000, 300, 200),
+                                      no.se.compensan =c(Inf, Inf, Inf, Inf, Inf),
                                       que.alternativas = T)
 electre_1
 ```
@@ -206,40 +202,56 @@ library(qgraph)
 qgraph::qgraph(electre_1$relacion.dominante)
 
 ```
+
 En principio, no notamos cuál va a ser la mejor solución por lo que vamos a reducir el alpha para sacar mejores conclusiones: 
   
 ```{r}
 electre_reducido = multicriterio.metodoELECTRE_I(desicion,
                                       pesos.criterios = pesos,
                                       nivel.concordancia.minimo.alpha = 0.6,
-                                     no.se.compensan =c(100, 50, 1000, 300, 200) ,
-                                      que.alternativas = T)
+                                     no.se.compensan =c(Inf, Inf, Inf, Inf, Inf) ,
+                                      que.alternativas = c(1,2,3,5))
 electre_reducido
 qgraph::qgraph(electre_reducido$relacion.dominante)
 ```
+
 Aquí podemos observar que tenemos ahora solo 4 ubicaciones, vamos a seguir reduciendo para sacar la mejor conclusión:
 ```{r}
 electre_reducido2 = multicriterio.metodoELECTRE_I(desicion,
                                       pesos.criterios = pesos,
-                                      nivel.concordancia.minimo.alpha = 0.52,
-                                     no.se.compensan = c(100, 50, 1000, 300, 200),
-                                      que.alternativas = c(1,2,3,5))
+                                      nivel.concordancia.minimo.alpha = 0.51,
+                                     no.se.compensan = c(Inf, Inf, Inf, Inf, Inf),
+                                      que.alternativas = c(1,3,4))
 electre_reducido2
 qgraph::qgraph(electre_reducido2$relacion.dominante)
 ```
-Podemos concluir que la mejor solución es la misma que en los otros métodos, la ubicación E. 
+
+Podemos concluir que la mejor solución es la misma que en los otros métodos, la ubicación C seguida de  la ubicación A. 
 
 # METODO AHP   
 Matrices de Comparación para las Alternativas respecto a Cada Criterio
-```{r}
-proximidad = matrix(c(
-  1,    1.14, 0.89, 1.07, 1.23,
-  0.88, 1,    0.78, 0.93, 1.08,
-  1.12, 1.28, 1,    1.20, 1.38,
-  0.93, 1.08, 0.83, 1,    1.15,
-  0.81, 0.93, 0.72, 0.87, 1
-), nrow = 5, byrow = TRUE)
 
+Escala de Importancia (AHP)
+
+1: Igualmente importante.
+
+3: Moderadamente más importante.
+
+5: Mucho más importante.
+
+7: Muy fuertemente más importante.
+
+9: Extremadamente más importante.
+
+Recíprocos: Los valores inversos (1/3, 1/5, etc.) se usan para las relaciones inversas.
+```{r}
+proximidad =  matrix(c(
+  1,   5,   1/5,  3,  7,   # A vs B, C, D, E
+  1/5, 1,   1/7,  1/3,  3,   # B vs A, C, D, E
+  5,   7,   1,   5,    9,   # C vs A, B, D, E
+  1/3,   3,   1/5, 1,    5,   # D vs A, B, C, E
+  1/7, 1/3, 1/9, 1/5,  1    # E vs A, B, C, D
+), nrow = 5, byrow = TRUE)
 rownames(proximidad) = c("A", "B", "C", "D", "E")
 colnames(proximidad) = c("A", "B", "C", "D", "E")
 library(kableExtra)
@@ -248,13 +260,14 @@ kable(proximidad, caption = "Matriz de Comparación: Proximidad a Zonas Residenc
 ```
 
 ```{r}
-accesibilidad= matrix(c(
-  1,    0.82, 1.08, 0.88, 0.78,
-  1.22, 1,    1.32, 1.08, 0.95,
-  0.93, 0.76, 1,    0.82, 0.71,
-  1.14, 0.93, 1.22, 1,    0.86,
-  1.28, 1.05, 1.41, 1.16, 1
+accesibilidad=  matrix(c(
+  1,   1/5, 3,   1/3,   1/5,   # Comparaciones entre ubicaciones (A vs B, C, D, E)
+  5,   1,   7,   3,   1/3,   # B
+  1/3, 1/7, 1,   1/5, 1/9, # C
+  3, 1/3, 5,   1,   1/7,   # D
+  5, 3, 9,   7, 1    # E
 ), nrow = 5, byrow = TRUE)
+
 
 rownames(accesibilidad) = c("A", "B", "C", "D", "E")
 colnames(accesibilidad) = c("A", "B", "C", "D", "E")
@@ -264,12 +277,15 @@ kable(accesibilidad, caption = "Matriz de Comparación: Accesibilidad")
 
 ```{r}
 costo = matrix(c(
-  1,    1.09, 1.16, 1.09, 0.75,
-  0.92, 1,    1.07, 1,    0.69,
-  0.86, 0.94, 1,    0.94, 0.65,
-  0.92, 1,    1.07, 1,    0.69,
-  1.33, 1.45, 1.54, 1.45, 1
+  1,   3,   1/3,  1/3,   5,
+  1/3,   1,   1/5,   1/5,   5,
+  3, 5, 1,   3,   9,
+  3, 5, 1/3,   1,   7,
+  1/5, 1/5, 1/9, 1/7, 1
 ), nrow = 5, byrow = TRUE)
+
+
+
 
 rownames(costo) = c("A", "B", "C", "D", "E")
 colnames(costo) = c("A", "B", "C", "D", "E")
@@ -279,12 +295,12 @@ kable(costo, caption = "Matriz de Comparación: Costo del Alquiler Mensual")
 
 ```{r}
 
-competencia = matrix(c(
-  1,    0.75, 1.20, 0.86, 0.71,
-  1.33, 1,    1.60, 1.14, 0.95,
-  0.83, 0.63, 1,    0.71, 0.59,
-  1.16, 0.88, 1.40, 1,    0.83,
-  1.41, 1.05, 1.70, 1.20, 1
+competencia =  matrix(c(
+  1,   1/5,   3,   1/3,   1/7,
+  5,   1,   9,   3,   1/3,
+  1/3, 1/9, 1,   1/7,   1/9,
+  3, 1/3, 7,   1,   1/5,
+  7, 3, 9, 5, 1
 ), nrow = 5, byrow = TRUE)
 
 rownames(competencia) = c("A", "B", "C", "D", "E")
@@ -294,11 +310,11 @@ kable(competencia, caption = "Matriz de Comparación: Competencia Cercana")
 
 ```{r}
 tamano = matrix(c(
-  1,    1.20, 0.94, 1.11, 1.30,
-  0.83, 1,    0.78, 0.92, 1.08,
-  1.06, 1.29, 1,    1.18, 1.39,
-  0.90, 1.09, 0.85, 1,    1.18,
-  0.77, 0.92, 0.72, 0.85, 1
+  1,5,  1/3,  3,  7,
+  1/3, 1, 1/5, 1/3,3,
+  3,5, 1, 5,9,
+  1/3,3, 1/5,  1,5,
+  1/7,1/9,1/5, 1/5, 1
 ), nrow = 5, byrow = TRUE)
 
 rownames(tamano) = c("A", "B", "C", "D", "E")
@@ -310,12 +326,12 @@ kable(tamano, caption = "Matriz de Comparación: Tamaño del Local")
 Matriz de Comparación por Pares de los Criterios:
 ```{r}
 
-criterios2 = matrix(c(
-  1,   1.2, -1.5, 1.3, 1.3,  
-  0.83, 1,   -1.2, 1.1, 1.1,  
-  0.67, 0.83, -1,   0.9, 0.9,  
-  0.77, 0.91, -1.11, 1,   1,  
-  0.77, 0.91,1.11, 1,   1   
+criterios2 =matrix(c(
+  1,   3,   5,   5,   5,   # Proximidad vs. otros criterios
+  1/3, 1,   3,   3,   3,   # Accesibilidad vs. otros criterios
+  1/5, 1/3, 1,   1,   1,   # Costo vs. otros criterios
+  1/5, 1/3, 1,   1,   1,   # Competencia vs. otros criterios
+  1/5, 1/3, 1,   1,   1    # Tamaño vs. otros criterios
 ), nrow = 5, byrow = TRUE)
 
 rownames(criterios2) = c("Proximidad", "Accesibilidad", "Costo", "Competencia", "Tamaño")
@@ -363,7 +379,9 @@ dimnames(tabla2)[[2]] <- alternativas
 dimnames(tabla2)[[3]] <- criterios
 multicriterio.metodoahp.diagrama(tabla1, tabla2)
 ```
-Podemos ver que como en el resto de los métodos, la mejor ubicación es la E. 
+
+Podemos ver que como en el resto de los métodos, la mejor ubicación es la C. 
+
 2. **Calcular las ponderaciones asociadas a cada criterio manejado.**
 
 ```{r}
@@ -376,65 +394,45 @@ Esto implica que "Proximidad" es el criterio con mayor peso en la toma de decisi
 pproximidad=  multicriterio.metodoAHP.variante3.basico(proximidad2)
 pproximidad
 ```
-Ubicación C es la más preferida en cuanto a proximidad a zonas residenciales jóvenes, con la prioridad relativa más alta (0.2232) Esto indica que sería una opción estratégica si la proximidad es el criterio principal para la toma de decisiones.
-Ubicación E tiene la menor prioridad relativa(0.1713), lo que sugiere que está menos alineada con el criterio de proximidad.
-Por tanto, Ubicación C debe ser considerada como la mejor alternativa según el análisis de proximidad.
+
+A partir del análisis realizado, Ubicación C se destaca como la opción más favorable en función de todos los criterios considerados. Esta ubicación obtiene la mayor ponderación en términos de la proximidad a zonas residenciales jóvenes, accesibilidad, y otros factores, lo que la hace la opción preferida para establecer la discoteca.
+
 ```{r}
 paccesibilidad=  multicriterio.metodoAHP.variante3.basico(accesibilidad2)
 paccesibilidad
 ```
-Ubicación E es la opción más preferida en términos de accesibilidad, con la prioridad relativa más alta (
-0.2356
-0.2356). Esto indica que proporciona las mejores condiciones de accesibilidad comparada con otras ubicaciones.
-Ubicación C tiene la prioridad relativa más baja (
-0.1774
-0.1774), lo que la hace menos favorable en accesibilidad.
+
+Ubicación E es la más preferida, ya que tiene la mayor puntuación global en el análisis. 
+
 ```{r}
 pcosto=  multicriterio.metodoAHP.variante3.basico(costo2)
 pcosto
 ```
-Ubicación E es la opción más favorable para el costo de alquiler, con la prioridad más alta (0.2424). Esto implica que ofrece el mejor equilibrio entre el costo y su valor comparado con las demás ubicaciones.
-Ubicación C es la menos favorable (0.1641), lo que sugiere que, en términos de costo, podría no ser una buena elección relativa.
+
+la Ubicación C es la opción más preferida, ya que tiene la puntuación más alta en el análisis global de costo.
+
 ```{r}
 pcompetencia=  multicriterio.metodoAHP.variante3.basico(competencia2)
 pcompetencia
 ```
-Ubicación E destaca como la opción más competitiva (0.2486), lo que indica que podría ofrecer una ventaja significativa frente a las demás ubicaciones en términos de este criterio.Ubicación A y Ubicación D son alternativas fuertes pero ligeramente inferiores en competitividad relativa.Ubicación C obtiene el menor puntaje (0.1631), lo que sugiere que podría enfrentar mayores desafíos o menos oportunidades desde el punto de vista competitivo.
+
+Con respecto a competencia la mejor opción es la A.
 ```{r}
 ptamaño=  multicriterio.metodoAHP.variante3.basico(tamano2)
 ptamaño
 ```
-Ubicación C es la más adecuada en términos de tamaño, con una valoración superior(0.2213), lo que indica que podría ofrecer una ventaja significativa por sus dimensiones o espacio disponible.Ubicación D y Ubicación B están muy cerca en competitividad, también representando buenas opciones pero algo inferiores a Ubicación C.Ubicación E presenta la puntuación más baja (0.1669), lo que sugiere que tiene las dimensiones menos competitivas entre las opciones evaluadas.
-4. **Verificar la consistencia de las preferencias**
-```{r}
-multicriterio.metodoAHP.coef.inconsistencia(criterios2)
-```
-La consistencia es adecuada, lo que indica que las preferencias expresadas en la matriz de comparación de criterios son suficientemente coherentes y razonables.
-```{r}
+Ubicación C es la más adecuada en términos de tamaño, con una valoración superior lo que indica que podría ofrecer una ventaja significativa por sus dimensiones o espacio disponible.
 
-multicriterio.metodoAHP.coef.inconsistencia(proximidad2)
-#  Consistencia aceptable
+4.**Determina la consistencia general. **
+```{r}
+consistencia=multicriterio.metodoAHP.coef.inconsistencia(criterios2)
+consistencia
+
 ```
 
-```{r}
-multicriterio.metodoAHP.coef.inconsistencia(accesibilidad2)
-# Consistencia aceptable
-```
+El análisis muestra que la consistencia de las comparaciones es aceptable. El índice de inconsistencia es bajo, y el valor de $lambda está cerca de 5, lo que indica que las comparaciones realizadas entre las ubicaciones son coherentes. Los valores de consistencia (CI) y el índice de aleatoriedad (RI) también indican que no hay problemas significativos con la coherencia de los juicios realizados, lo que permite confiar en los resultados obtenidos.
 
-```{r}
-multicriterio.metodoAHP.coef.inconsistencia(costo2)
-# Consistencia aceptable
-```
 
-```{r}
-multicriterio.metodoAHP.coef.inconsistencia(competencia2)
-#  Consistencia aceptable
-```
-
-```{r}
-multicriterio.metodoAHP.coef.inconsistencia(tamano2)
-# Consistencia aceptable
-```
 5. **Determinar la prioridad global de cada ubicación.**
 ```{r}
  multicriterio.metodoAHP.pesosglobales_entabla(pesos_criterios$valoraciones.ahp,                                         rbind(pproximidad$valoraciones.ahp,
@@ -443,13 +441,56 @@ multicriterio.metodoAHP.coef.inconsistencia(tamano2)
                                                           pcompetencia$valoraciones.ahp,
                                                           ptamaño$valoraciones.ahp))
 ```
-Ubicación E sobresale como la mejor opción global con un puntaje de 0.2155, destacándose especialmente en los criterios de costo, accesibilidad, y competencia. Esto indica que Ubicación E ofrece un equilibrio fuerte entre estos factores.
-Ubicación A se posiciona en el segundo lugar, gracias a un buen desempeño en costo y proximidad, lo que la hace competitiva.
-Ubicación D y Ubicación B tienen puntuaciones similares, sugiriendo que ambas podrían ser alternativas viables si las primeras opciones no están disponibles o si algún criterio específico (como tamaño o costo) tiene más relevancia para el objetivo.
-Ubicación C es la menos favorable, con un puntaje global de 0.1886. Esto sugiere que tiene desventajas relativas frente a las otras ubicaciones, especialmente en competencia y costo.
+Ubicación C sobresale como la mejor opción global con un puntaje de 0.31402823 , destacándose especialmente en los criterios de costo, accesibilidad, y tamaño. Esto indica que Ubicación C ofrece un equilibrio fuerte entre estos factores.
+Ubicación D se posiciona en el segundo lugar, gracias a un buen desempeño en costo y competencia, lo que la hace competitiva.
+ Ubicación B  tienen puntuación alta, sugiriendo que podría ser una  alternativas viable si las primeras opciones no están disponibles o si algún criterio específico tiene más relevancia para el objetivo.
+Ubicación A y E son las menos favorables respectivamente, con un puntaje global menor a 0.15 en ambos casos. Esto sugiere que tienen desventajas relativas frente a las otras ubicaciones.
 
-## Conclusion General 
-Ubicación E es la mejor opción global al integrar todos los criterios, ofreciendo el mejor balance entre costo, accesibilidad, y competencia. Ubicación A es una buena alternativa, especialmente si se da prioridad a la proximidad o al costo. Por otro lado, Ubicación C es menos competitiva en este análisis, por lo que sería la última opción.
+# Método AHP con la librería
+```{r}
+#ahp::RunGUI()
+library(ahp)
+
+ahp_problema = ahp::Load("problema")
+ahp_problema
+Visualize(ahp_problema)
+Calculate(ahp_problema)
+print(ahp_problema, priority = function(x) x$parent$priority["Total", x$name])
+# Analizar
+Analyze(ahp_problema,variable="priority")
+
+Analyze(ahp_problema)
+# Analizar con tabla mejorada
+analizar= AnalyzeTable(ahp_problema)
+formattable::as.htmlwidget(analizar)
+analizar2=AnalyzeTable(ahp_problema,variable="priority")
+formattable::as.htmlwidget(analizar2)
+
+```
+
+
+## Conclusión General
+
+A partir del análisis de las opciones de ubicación utilizando el **Método Analítico de Jerarquía (AHP)**, se concluye que la **Ubicación C** es la mejor opción para la nueva discoteca, seguida por el resto de ubicaciones. Esta conclusión se basa en una serie de criterios clave evaluados comparativamente, tales como **proximidad a zonas residenciales jóvenes**, **accesibilidad**, **costo del alquiler mensual**, **competencia cercana** y **tamaño del local**.
+
+### **Razones para elegir la Ubicación C:**
+
+- **Proximidad a zonas residenciales jóvenes:**  
+  La **Ubicación C** obtiene la puntuación más alta en este criterio, lo que la hace especialmente atractiva para atraer a la audiencia objetivo, que son los jóvenes.
+  
+- **Accesibilidad:**  
+  Aunque no es la mejor en accesibilidad, la **Ubicación C** sigue siendo competitiva en este aspecto, lo cual es crucial para asegurar que los clientes puedan llegar fácilmente al lugar.
+
+- **Competencia cercana:**  
+  Aunque la competencia cercana no es el criterio más fuerte para la **Ubicación C**, sus otras ventajas compensan este factor, haciéndola aún atractiva.
+
+- **Tamaño del local:**  
+  La **Ubicación C** tiene un tamaño adecuado para la discoteca, ofreciendo suficiente espacio tanto para las operaciones como para los clientes.
+
+### **Resumen:**
+
+En conclusión, la **Ubicación C** es la opción más equilibrada y destacada en el análisis general. Su ventaja en proximidad a zonas residenciales jóvenes, un buen tamaño del local y su rendimiento competitivo en otros criterios la posicionan como la mejor opción. Las demás ubicaciones tienen ventajas en aspectos específicos, pero no logran igualar el rendimiento de la **Ubicación C** en el conjunto de criterios más relevantes para el éxito de la discoteca.
+
  
  
  
